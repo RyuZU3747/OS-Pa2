@@ -207,28 +207,32 @@ struct scheduler fifo_scheduler = {
 static struct process *sjf_schedule(void)
 {
 	struct process *next = NULL;
-	//dump_status();
+	dump_status();
+
+	
 	if(!current || current->status == PROCESS_BLOCKED){
-		if(!list_empty(&readyqueue)){
-			unsigned int minspan = -1;
-			struct process *cur;
-			list_for_each_entry(cur, &readyqueue, list){
-				minspan = min(cur->lifespan, minspan);
-			}
-			list_for_each_entry(cur, &readyqueue, list){
-				if(minspan == cur->lifespan){
-					next = cur;
-				}
-			}
-		}
-		list_del_init(&next->list);
-		return next;
+		goto sjf_pick;
 	}
 
 	if (current->age < current->lifespan) {
 		return current;
 	}
 
+sjf_pick:
+
+	if(!list_empty(&readyqueue)){
+		unsigned int minspan = -1;
+		struct process *cur;
+		list_for_each_entry(cur, &readyqueue, list){
+			minspan = min(cur->lifespan, minspan);
+		}
+		list_for_each_entry(cur, &readyqueue, list){
+			if(minspan == cur->lifespan){
+				next = cur;
+			}
+		}
+		list_del_init(&next->list);
+	}
 	/**
 	 * Implement your own SJF scheduler here.
 	 */
@@ -247,11 +251,43 @@ struct scheduler sjf_scheduler = {
 /***********************************************************************
  * STCF scheduler
  ***********************************************************************/
+static struct process *stcf_schedule(void){
+
+	struct process *next = NULL;
+	dump_status();
+	if(!current || current->status == PROCESS_BLOCKED){
+		if(!list_empty(&readyqueue)){
+			unsigned int minspan = -1;
+			struct process *cur;
+			list_for_each_entry(cur, &readyqueue, list){
+				minspan = min(cur->lifespan, minspan);
+			}
+			list_for_each_entry(cur, &readyqueue, list){
+				if(minspan == cur->lifespan){
+					next = cur;
+				}
+			}
+			if(current->lifespan - current->age > minspan){
+				return current;
+			}
+			list_add_tail(&current->list, &readyqueue);
+			list_del_init(&next->list);
+			return next;
+		}
+
+	}
+
+	if (current->age < current->lifespan) {
+		return current;
+	}
+	return next;
+};
+
 struct scheduler stcf_scheduler = {
 	.name = "Shortest Time-to-Complete First",
 	.acquire = fcfs_acquire, /* Use the default FCFS acquire() */
 	.release = fcfs_release, /* Use the default FCFS release() */
-
+	.schedule = stcf_schedule,
 	/* You need to check the newly created processes to implement STCF.
 	 * Have a look at @forked() callback.
 	 */
