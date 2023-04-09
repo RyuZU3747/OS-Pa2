@@ -254,30 +254,32 @@ struct scheduler sjf_scheduler = {
 static struct process *stcf_schedule(void){
 
 	struct process *next = NULL;
-	dump_status();
-	if(!current || current->status == PROCESS_BLOCKED){
-		if(!list_empty(&readyqueue)){
-			unsigned int minspan = -1;
-			struct process *cur;
-			list_for_each_entry(cur, &readyqueue, list){
-				minspan = min(cur->lifespan, minspan);
+	//dump_status();
+
+	if(!list_empty(&readyqueue)){
+		unsigned int minspan = -1;
+		struct process *cur;
+		list_for_each_entry(cur, &readyqueue, list){
+			minspan = min(cur->lifespan, minspan);
+		}
+		list_for_each_entry(cur, &readyqueue, list){
+			if(minspan == cur->lifespan){
+				next = cur;
 			}
-			list_for_each_entry(cur, &readyqueue, list){
-				if(minspan == cur->lifespan){
-					next = cur;
-				}
-			}
-			if(current->lifespan - current->age > minspan){
-				return current;
-			}
-			list_add_tail(&current->list, &readyqueue);
+		}
+		if(!current){
 			list_del_init(&next->list);
 			return next;
 		}
-
+		if(current && current->lifespan - current->age > 0 && current->lifespan - current->age < minspan){
+			return current;
+		}
+		if(current && current->lifespan > current->age) list_add_tail(&current->list, &readyqueue);
+		list_del_init(&next->list);
+		return next;
 	}
-
-	if (current->age < current->lifespan) {
+	else{
+		if(current->lifespan == current->age) return NULL;
 		return current;
 	}
 	return next;
