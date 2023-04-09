@@ -147,6 +147,7 @@ static struct process *fifo_schedule(void)
 {
 	struct process *next = NULL;
 
+	//dump_status();
 	/* You may inspect the situation by calling dump_status() at any time */
 	// dump_status();
 
@@ -200,19 +201,45 @@ struct scheduler fifo_scheduler = {
 /***********************************************************************
  * SJF scheduler
  ***********************************************************************/
+
+#define min(a,b) a < b ? a : b
+
 static struct process *sjf_schedule(void)
 {
+	struct process *next = NULL;
+	//dump_status();
+	if(!current || current->status == PROCESS_BLOCKED){
+		if(!list_empty(&readyqueue)){
+			unsigned int minspan = -1;
+			struct process *cur;
+			list_for_each_entry(cur, &readyqueue, list){
+				minspan = min(cur->lifespan, minspan);
+			}
+			list_for_each_entry(cur, &readyqueue, list){
+				if(minspan == cur->lifespan){
+					next = cur;
+				}
+			}
+		}
+		list_del_init(&next->list);
+		return next;
+	}
+
+	if (current->age < current->lifespan) {
+		return current;
+	}
+
 	/**
 	 * Implement your own SJF scheduler here.
 	 */
-	return NULL;
+	return next;
 }
 
 struct scheduler sjf_scheduler = {
 	.name = "Shortest-Job First",
 	.acquire = fcfs_acquire,	/* Use the default FCFS acquire() */
 	.release = fcfs_release,	/* Use the default FCFS release() */
-	.schedule = NULL,			/* TODO: Assign your schedule function  
+	.schedule = sjf_schedule,			/* TODO: Assign your schedule function  
 								   to this function pointer to activate
 								   SJF in the simulation system */
 };
