@@ -207,7 +207,7 @@ struct scheduler fifo_scheduler = {
 static struct process *sjf_schedule(void)
 {
 	struct process *next = NULL;
-	dump_status();
+	//dump_status();
 
 	
 	if(!current || current->status == PROCESS_BLOCKED){
