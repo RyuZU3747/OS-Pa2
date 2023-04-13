@@ -300,11 +300,28 @@ struct scheduler stcf_scheduler = {
 /***********************************************************************
  * Round-robin scheduler
  ***********************************************************************/
+static struct process *rr_schedule(void){
+	struct process *next = NULL;
+	//dump_status();
+	if(!list_empty(&readyqueue)){
+		next = list_first_entry(&readyqueue, struct process, list);
+		list_del_init(&next->list);
+		if(current && current->lifespan - current->age > 0){
+			list_add_tail(&current->list, &readyqueue);
+		}
+	}
+	else{
+		if(current->lifespan == current->age) return NULL;
+		return current;
+	}
+	return next;
+};
+
 struct scheduler rr_scheduler = {
 	.name = "Round-Robin",
 	.acquire = fcfs_acquire, /* Use the default FCFS acquire() */
 	.release = fcfs_release, /* Use the default FCFS release() */
-
+	.schedule = rr_schedule,
 	/* Obviously, ... */
 };
 
