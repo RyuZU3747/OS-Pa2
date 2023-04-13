@@ -306,9 +306,7 @@ static struct process *rr_schedule(void){
 	if(!list_empty(&readyqueue)){
 		next = list_first_entry(&readyqueue, struct process, list);
 		list_del_init(&next->list);
-		if(current && current->lifespan - current->age > 0){
-			list_add_tail(&current->list, &readyqueue);
-		}
+		if(current && current->lifespan - current->age > 0) list_add_tail(&current->list, &readyqueue);
 	}
 	else{
 		if(current->lifespan == current->age) return NULL;
