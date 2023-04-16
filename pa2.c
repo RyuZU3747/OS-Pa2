@@ -203,6 +203,7 @@ struct scheduler fifo_scheduler = {
  ***********************************************************************/
 
 #define min(a,b) a < b ? a : b
+#define max(a,b) a > b ? a : b
 
 static struct process *sjf_schedule(void)
 {
@@ -326,8 +327,38 @@ struct scheduler rr_scheduler = {
 /***********************************************************************
  * Priority scheduler
  ***********************************************************************/
+static struct process *prio_schedule(void){
+	struct process *next = NULL;
+	//dump_status();
+	if(!list_empty(&readyqueue)){
+		unsigned int mxprio = 0;
+		struct process *cur;
+		list_for_each_entry(cur, &readyqueue, list){
+			mxprio = max(cur->prio, mxprio);
+		}
+		list_for_each_entry(cur, &readyqueue, list){
+			if(mxprio == cur->prio){
+				next = cur;
+			}
+		}
+		if(current && mxprio < current->prio && current->lifespan - current->age > 0){
+			if(current->lifespan == current->age) return NULL;
+			return current;
+		}
+		list_del_init(&next->list);
+		if(current && current->lifespan - current->age > 0) list_add_tail(&current->list, &readyqueue);
+	}
+	else{
+		if(current->lifespan == current->age) return NULL;
+		return current;
+	}
+	return next;
+};
 struct scheduler prio_scheduler = {
 	.name = "Priority",
+	.acquire = fcfs_acquire,
+	.release = fcfs_release,
+	.schedule = prio_schedule,
 	/**
 	 * Implement your own acqure/release function to make the priority
 	 * scheduler correct.
