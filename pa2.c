@@ -262,10 +262,10 @@ static struct process *stcf_schedule(void){
 		unsigned int minspan = -1;
 		struct process *cur;
 		list_for_each_entry(cur, &readyqueue, list){
-			minspan = min(cur->lifespan, minspan);
+			minspan = min(cur->lifespan - cur->age, minspan);
 		}
 		list_for_each_entry(cur, &readyqueue, list){
-			if(minspan == cur->lifespan){
+			if(minspan == cur->lifespan - cur->age){
 				next = cur;
 				break;
 			}
