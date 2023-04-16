@@ -455,6 +455,7 @@ static struct process *pa_schedule(void){
 		list_for_each_entry(cur, &readyqueue, list){
 			if(mxprio == cur->prio){
 				next = cur;
+				break;
 			}
 		}
 		list_del_init(&next->list);
