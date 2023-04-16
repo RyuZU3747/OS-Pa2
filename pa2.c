@@ -230,6 +230,7 @@ sjf_pick:
 		list_for_each_entry(cur, &readyqueue, list){
 			if(minspan == cur->lifespan){
 				next = cur;
+				break;
 			}
 		}
 		list_del_init(&next->list);
@@ -266,6 +267,7 @@ static struct process *stcf_schedule(void){
 		list_for_each_entry(cur, &readyqueue, list){
 			if(minspan == cur->lifespan){
 				next = cur;
+				break;
 			}
 		}
 		if(!current){
