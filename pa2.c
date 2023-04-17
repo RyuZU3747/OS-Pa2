@@ -513,6 +513,7 @@ static void pcp_release(int resource_id)
 	assert(r->owner == current);
 
 	/* Un-own this resource */
+	r->owner->prio = r->owner->prio_orig;
 	r->owner = NULL;
 
 	/* Let's wake up ONE waiter (if exists) that came first */
