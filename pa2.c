@@ -526,6 +526,7 @@ static void pcp_release(int resource_id)
 		list_for_each_entry(cur, &r->waitqueue, list){
 			if(mxprio == cur->prio){
 				waiter = cur;
+				break;
 			}
 		}
 		/**
@@ -568,6 +569,7 @@ static struct process *pcp_schedule(void){
 		list_for_each_entry(cur, &readyqueue, list){
 			if(mxprio == cur->prio){
 				next = cur;
+				break;
 			}
 			cur->prio += 1;
 		}
@@ -638,6 +640,7 @@ static void pip_release(int resource_id)
 		list_for_each_entry(cur, &r->waitqueue, list){
 			if(mxprio == cur->prio){
 				waiter = cur;
+				break;
 			}
 		}
 		/**
@@ -680,6 +683,7 @@ static struct process *pip_schedule(void){
 		list_for_each_entry(cur, &readyqueue, list){
 			if(mxprio == cur->prio){
 				next = cur;
+				break;
 			}
 			cur->prio += 1;
 		}
