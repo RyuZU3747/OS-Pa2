@@ -572,7 +572,6 @@ static struct process *pcp_schedule(void){
 				next = cur;
 				break;
 			}
-			cur->prio += 1;
 		}
 		list_del_init(&next->list);
 	}
@@ -691,7 +690,6 @@ static struct process *pip_schedule(void){
 				next = cur;
 				break;
 			}
-			cur->prio += 1;
 		}
 		list_del_init(&next->list);
 	}
