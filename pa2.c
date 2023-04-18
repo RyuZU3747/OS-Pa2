@@ -599,7 +599,6 @@ static bool pip_acquire(int resource_id)
 	
 	if (!r->owner) {
 		/* This resource is not owned by any one. Take it! */
-		current->prio = MAX_PRIO;
 		r->owner = current;
 		return true;
 	}
@@ -611,6 +610,12 @@ static bool pip_acquire(int resource_id)
 	/* And append current to waitqueue */
 	list_add_tail(&current->list, &r->waitqueue);
 
+	struct process *cur;
+	unsigned int mxprio = 0;
+	list_for_each_entry(cur, &r->waitqueue, list){
+		mxprio = max(cur->prio, mxprio);
+	}
+	r->owner->prio = mxprio;
 	/**
 	 * And return false to indicate the resource is not available.
 	 * The scheduler framework will soon call schedule() function to
